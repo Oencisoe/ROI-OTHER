@@ -107,24 +107,24 @@ hr.div { border:none; border-top:1px solid #ddd; margin:5px 0; }
 
   <div class="sec">Client Information</div>
   <div class="row">
-    <div class="f w2"><span class="lbl">Client Name</span><input type="text"></div>
-    <div class="f"><span class="lbl">Client UCI #</span><input type="text"></div>
-    <div class="f"><span class="lbl">Date of Birth</span><input type="text" placeholder="MM/DD/YYYY"></div>
+    <div class="f w2"><span class="lbl">Client Name</span><input type="text" id="clientName"></div>
+    <div class="f"><span class="lbl">Client UCI #</span><input type="text" id="uci"></div>
+    <div class="f"><span class="lbl">Date of Birth</span><input type="text" id="dob" placeholder="MM/DD/YYYY"></div>
   </div>
   <div class="row">
-    <div class="f w3"><span class="lbl">Address</span><input type="text"></div>
+    <div class="f w3"><span class="lbl">Address</span><input type="text" id="address"></div>
   </div>
   <div class="row">
-    <div class="f"><span class="lbl">Phone Number</span><input type="text" placeholder="(xxx) xxx-xxxx" oninput="fmtPhone(this)" maxlength="14"></div>
-    <div class="f w2"><span class="lbl">Email Address</span><input type="text" placeholder="email@example.com"></div>
+    <div class="f"><span class="lbl">Phone Number</span><input type="text" id="clientPhone" placeholder="(xxx) xxx-xxxx" oninput="fmtPhone(this)" maxlength="14"></div>
+    <div class="f w2"><span class="lbl">Email Address</span><input type="text" id="clientEmail" placeholder="email@example.com"></div>
   </div>
 
   <div class="sec">Point of Contact <span style="font-weight:normal;font-size:8pt">(if different from client)</span></div>
   <div class="row">
-    <div class="f"><span class="lbl">Name</span><input type="text"></div>
-    <div class="f"><span class="lbl">Relationship</span><input type="text"></div>
-    <div class="f"><span class="lbl">Phone</span><input type="text" placeholder="(xxx) xxx-xxxx" oninput="fmtPhone(this)" maxlength="14"></div>
-    <div class="f"><span class="lbl">Email</span><input type="text"></div>
+    <div class="f"><span class="lbl">Name</span><input type="text" id="pocName"></div>
+    <div class="f"><span class="lbl">Relationship</span><input type="text" id="pocRel"></div>
+    <div class="f"><span class="lbl">Phone</span><input type="text" id="pocPhone" placeholder="(xxx) xxx-xxxx" oninput="fmtPhone(this)" maxlength="14"></div>
+    <div class="f"><span class="lbl">Email</span><input type="text" id="pocEmail"></div>
   </div>
 
   <div class="sec">FROM / TO (Authorized Information Exchange)</div>
@@ -193,7 +193,7 @@ hr.div { border:none; border-top:1px solid #ddd; margin:5px 0; }
     </div>
   </div>
 
-  <button class="print-btn" onclick="window.print()">&#128424; Print / Save as PDF</button>
+  <button class="print-btn" onclick="efifSubmit()">&#128424; Print / Save as PDF</button>
 
 </div>
 
@@ -228,6 +228,31 @@ function fmtPhone(el) {
 function fmtPhoneFam(el) {
   fmtPhone(el);
   updateFamilyMember();
+}
+</script>
+<script>
+/* EF-IF intake capture: names the PDF per convention (…PreppedForSignature) and
+   posts the field values to your private intake inbox (Google Apps Script → Sheet).
+   Set INTAKE_URL to your deployed Apps Script web-app URL. Until then it just prints. */
+const INTAKE_URL = "PASTE_GOOGLE_APPS_SCRIPT_URL_HERE";
+function efifData(){
+  const g = id => (document.getElementById(id)?.value || "").trim();
+  return { ClientName:g("clientName"), UCI:g("uci"), DOB:g("dob"), Address:g("address"),
+    ClientPhone:g("clientPhone"), ClientEmail:g("clientEmail"),
+    POCName:g("pocName"), POCRelationship:g("pocRel"),
+    POCPhone:g("pocPhone"), POCEmail:g("pocEmail"), RC:"", Entity:"" };
+}
+function efifSubmit(){
+  const r = efifData();
+  const d = new Date(), p = n => String(n).padStart(2,"0");
+  const mmddyy = p(d.getMonth()+1)+"."+p(d.getDate())+"."+String(d.getFullYear()).slice(2);
+  const nm = (r.ClientName || "Client").replace(/[^A-Za-z]/g,"");
+  document.title = nm + "_" + (r.UCI||"") + "_ROI_PreppedForSignature_" + mmddyy;
+  if (INTAKE_URL.indexOf("http") === 0) {
+    try { fetch(INTAKE_URL, { method:"POST", mode:"no-cors",
+      headers:{ "Content-Type":"text/plain" }, body: JSON.stringify(r) }); } catch(e){}
+  }
+  setTimeout(function(){ window.print(); }, 400);
 }
 </script>
 </body>
