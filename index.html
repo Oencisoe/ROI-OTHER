@@ -234,7 +234,7 @@ function fmtPhoneFam(el) {
 /* EF-IF intake capture: names the PDF per convention (…PreppedForSignature) and
    posts the field values to your private intake inbox (Google Apps Script → Sheet).
    Set INTAKE_URL to your deployed Apps Script web-app URL. Until then it just prints. */
-const INTAKE_URL = "PASTE_GOOGLE_APPS_SCRIPT_URL_HERE";
+const INTAKE_URL = "https://script.google.com/macros/s/AKfycbwN5HeK878AqKkljgiTx4qmP0Ji7XZ6Dzweu4Ef90_nZn0z2ffua45ROBb_D7qsrx5Q/exec";
 function efifData(){
   const g = id => (document.getElementById(id)?.value || "").trim();
   return { ClientName:g("clientName"), UCI:g("uci"), DOB:g("dob"), Address:g("address"),
